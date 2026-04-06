@@ -8,6 +8,125 @@ import json
 
 st.set_page_config(layout="wide", page_title="NeuralLab | Pro Optimizer")
 
+st.markdown("""
+<style>
+    :root {
+        --primary: #00ffff;
+        --secondary: #ff00ff;
+        --bg-glass: rgba(20, 20, 30, 0.6);
+        --border-glass: rgba(255, 255, 255, 0.1);
+    }
+    .stApp {
+        background-color: #0e1117;
+    }
+    div.stButton > button {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 6px;
+        background: linear-gradient(90deg, var(--primary), #0088ff);
+        color: #000 !important;
+        font-weight: 900;
+        border: none;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0.75rem;
+    }
+    div.stButton > button:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0px 10px 20px rgba(0, 255, 255, 0.3);
+    }
+    div.stDownloadButton > button {
+        background: transparent;
+        border: 1px solid var(--primary);
+        color: var(--primary) !important;
+    }
+    div.stDownloadButton > button:hover {
+        background: rgba(0, 255, 255, 0.1);
+        box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.2);
+    }
+    .main-title {
+        background: -webkit-linear-gradient(45deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900;
+        font-size: 3.5em;
+        letter-spacing: -1px;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .sub-title {
+        color: #8892b0;
+        font-family: monospace;
+        font-size: 1.1em;
+        margin-top: 0;
+        padding-top: 0;
+        margin-bottom: 2rem;
+    }
+    .glass-panel {
+        background: var(--bg-glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid var(--border-glass);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        margin-bottom: 24px;
+    }
+    .stat-box {
+        background: rgba(0,0,0,0.3);
+        border-left: 4px solid var(--primary);
+        padding: 15px;
+        border-radius: 0 8px 8px 0;
+    }
+    .terminal-window {
+        background-color: #0a0a0f;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 15px;
+        font-family: 'Fira Code', 'Courier New', Courier, monospace;
+        color: #00ffcc;
+        font-size: 0.85em;
+        line-height: 1.6;
+        height: 300px;
+        overflow-y: hidden;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    }
+    [data-testid="stMetricValue"] {
+        font-family: monospace;
+        color: #fff;
+        font-size: 2.2rem;
+        text-shadow: 0px 0px 15px rgba(255,255,255,0.2);
+    }
+    [data-testid="stMetricLabel"] {
+        color: var(--primary);
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: transparent;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: rgba(255,255,255,0.05);
+        border-radius: 8px 8px 0 0;
+        padding: 0 20px;
+        border: 1px solid transparent;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(0, 255, 255, 0.1) !important;
+        border-top: 2px solid var(--primary) !important;
+        border-left: 1px solid var(--border-glass) !important;
+        border-right: 1px solid var(--border-glass) !important;
+    }
+    hr {
+        border-color: rgba(255,255,255,0.1);
+    }
+</style>
+""", unsafe_allow_html=True)
+
 if 'initialized' not in st.session_state:
     st.session_state.initialized = True
     st.session_state.w1 = 0.0
@@ -18,171 +137,6 @@ if 'initialized' not in st.session_state:
     st.session_state.epoch_count = 0
     st.session_state.is_training = False
     st.session_state.current_mse = 0.0
-    st.session_state.theme = "Dark"
-
-with st.sidebar:
-    st.markdown('<div style="font-weight: 900; font-size: 2em; text-transform: uppercase; letter-spacing: 1px;">Config</div>', unsafe_allow_html=True)
-    st.markdown("<hr>", unsafe_allow_html=True)
-    
-    st.markdown("### Interface Theme")
-    theme_selection = st.radio("UI Mode", ["Dark", "Light"], horizontal=True, label_visibility="collapsed")
-    if theme_selection != st.session_state.theme:
-        st.session_state.theme = theme_selection
-        st.rerun()
-
-if st.session_state.theme == "Dark":
-    bg_color = "#0e1117"
-    text_color = "#ffffff"
-    primary = "#00ffff"
-    secondary = "#ff00ff"
-    glass_bg = "rgba(20, 20, 30, 0.6)"
-    border_color = "rgba(255, 255, 255, 0.1)"
-    term_bg = "#0a0a0f"
-    term_text = "#00ffcc"
-    grid_color = "rgba(255, 255, 255, 0.1)"
-    btn_text = "#000000"
-    tab_bg = "rgba(255,255,255,0.05)"
-    tab_selected_bg = "rgba(0, 255, 255, 0.1)"
-    shadow = "rgba(0, 0, 0, 0.5)"
-else:
-    bg_color = "#f4f6f9"
-    text_color = "#111827"
-    primary = "#0066cc"
-    secondary = "#ff3366"
-    glass_bg = "rgba(255, 255, 255, 0.85)"
-    border_color = "rgba(0, 0, 0, 0.1)"
-    term_bg = "#e8ecef"
-    term_text = "#0369a1"
-    grid_color = "rgba(0, 0, 0, 0.1)"
-    btn_text = "#ffffff"
-    tab_bg = "rgba(0,0,0,0.05)"
-    tab_selected_bg = "rgba(0, 102, 204, 0.1)"
-    shadow = "rgba(0, 0, 0, 0.05)"
-
-st.markdown(f"""
-<style>
-    :root {{
-        --primary: {primary};
-        --secondary: {secondary};
-        --bg-glass: {glass_bg};
-        --border-glass: {border_color};
-        --text-color: {text_color};
-        --bg-main: {bg_color};
-    }}
-    .stApp {{
-        background-color: var(--bg-main);
-        transition: background-color 0.5s ease;
-    }}
-    p, h1, h2, h3, h4, h5, h6, span, label, div {{
-        color: var(--text-color) !important;
-        transition: color 0.5s ease;
-    }}
-    div.stButton > button {{
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 6px;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
-        color: {btn_text} !important;
-        font-weight: 900;
-        border: none;
-        width: 100%;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 0.75rem;
-    }}
-    div.stButton > button:hover {{
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0px 8px 15px rgba(128, 128, 128, 0.3);
-    }}
-    div.stDownloadButton > button {{
-        background: transparent;
-        border: 1px solid var(--primary);
-        color: var(--primary) !important;
-    }}
-    div.stDownloadButton > button:hover {{
-        background: {tab_selected_bg};
-    }}
-    .main-title {{
-        background: -webkit-linear-gradient(45deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 900;
-        font-size: 3.5em;
-        letter-spacing: -1px;
-        margin-bottom: 0;
-        padding-bottom: 0;
-        display: inline-block;
-    }}
-    .sub-title {{
-        font-family: monospace;
-        font-size: 1.1em;
-        margin-top: 0;
-        padding-top: 0;
-        margin-bottom: 2rem;
-        opacity: 0.7;
-    }}
-    .glass-panel {{
-        background: var(--bg-glass);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 16px;
-        padding: 24px;
-        border: 1px solid var(--border-glass);
-        box-shadow: 0 8px 32px {shadow};
-        margin-bottom: 24px;
-        transition: all 0.5s ease;
-    }}
-    .terminal-window {{
-        background-color: {term_bg};
-        border: 1px solid var(--border-glass);
-        border-radius: 8px;
-        padding: 15px;
-        font-family: 'Fira Code', 'Courier New', Courier, monospace;
-        font-size: 0.85em;
-        line-height: 1.6;
-        height: 300px;
-        overflow-y: hidden;
-        transition: all 0.5s ease;
-    }}
-    .terminal-window span {{
-        color: {term_text} !important;
-        font-family: 'Fira Code', 'Courier New', Courier, monospace;
-    }}
-    [data-testid="stMetricValue"] {{
-        font-family: monospace;
-        font-size: 2.2rem;
-        color: var(--text-color) !important;
-        font-weight: bold;
-    }}
-    [data-testid="stMetricLabel"] {{
-        color: var(--primary) !important;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }}
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 8px;
-        background-color: transparent;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        height: 50px;
-        white-space: pre-wrap;
-        background-color: {tab_bg};
-        border-radius: 8px 8px 0 0;
-        padding: 0 20px;
-        border: 1px solid transparent;
-        transition: all 0.3s ease;
-    }}
-    .stTabs [aria-selected="true"] {{
-        background-color: {tab_selected_bg} !important;
-        border-top: 2px solid var(--primary) !important;
-        border-left: 1px solid var(--border-glass) !important;
-        border-right: 1px solid var(--border-glass) !important;
-    }}
-    hr {{
-        border-color: var(--border-glass);
-    }}
-</style>
-""", unsafe_allow_html=True)
 
 def generate_dataset(data_type, num_samples, noise_level):
     np.random.seed(42)
@@ -240,6 +194,9 @@ def compute_gradients(x1, x2, y_true, y_pred, w1, w2, l2_lambda):
     return dw1, dw2, db
 
 with st.sidebar:
+    st.markdown('<div class="main-title" style="font-size:2em;">Config</div>', unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
+    
     st.markdown("### Architecture")
     task_type = st.radio("Task Type", ["Regression", "Classification"], horizontal=True)
     
@@ -280,10 +237,10 @@ if st.session_state.epoch_count == 0 and len(st.session_state.loss_history) == 0
     preds = calculate_predictions(x1_data, x2_data, st.session_state.w1, st.session_state.w2, st.session_state.b, task_type)
     initial_loss = calculate_loss(y_data, preds, task_type, st.session_state.w1, st.session_state.w2, l2_lambda)
     st.session_state.current_mse = initial_loss
-    st.session_state.log_history.insert(0, f"<span>SYSTEM INITIALIZED. Target Loss: {initial_loss:.4f}</span>")
+    st.session_state.log_history.insert(0, f"SYSTEM INITIALIZED. Target Loss: {initial_loss:.4f}")
 
-st.markdown('<div class="main-title">NeuralLab Optimizer</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Advanced Multivariable Gradient Descent Engine v2.0</div>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-title">NeuralLab Optimizer</h1>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Advanced Multivariable Gradient Descent Engine v2.0</p>', unsafe_allow_html=True)
 
 metrics_placeholder = st.empty()
 progress_container = st.empty()
@@ -340,7 +297,7 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
         fig_main.add_trace(go.Scatter3d(
             x=x1_data, y=x2_data, z=y_data,
             mode='markers',
-            marker=dict(size=4, color=secondary, line=dict(width=1, color=bg_color)),
+            marker=dict(size=4, color='#ff00ff', line=dict(width=1, color='white')),
             name='Target Data'
         ))
         
@@ -359,9 +316,9 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
             scene=dict(
                 xaxis_title='Feature X1', yaxis_title='Feature X2', zaxis_title='Target Y',
                 camera=dict(eye=dict(x=cam_x, y=cam_y, z=0.5)),
-                xaxis=dict(gridcolor=grid_color, backgroundcolor="rgba(0,0,0,0)", tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                yaxis=dict(gridcolor=grid_color, backgroundcolor="rgba(0,0,0,0)", tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                zaxis=dict(gridcolor=grid_color, backgroundcolor="rgba(0,0,0,0)", tickfont=dict(color=text_color), titlefont=dict(color=text_color))
+                xaxis=dict(gridcolor="rgba(255,255,255,0.1)", backgroundcolor="rgba(0,0,0,0)"),
+                yaxis=dict(gridcolor="rgba(255,255,255,0.1)", backgroundcolor="rgba(0,0,0,0)"),
+                zaxis=dict(gridcolor="rgba(255,255,255,0.1)", backgroundcolor="rgba(0,0,0,0)")
             ),
             margin=dict(l=0, r=0, b=0, t=0),
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=600, showlegend=False
@@ -374,7 +331,7 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
         
         fig_main.add_trace(go.Contour(
             x=x1_grid, y=x2_grid, z=z_mesh,
-            colorscale='RdBu', opacity=0.3, showscale=False,
+            colorscale='RdBu', opacity=0.4, showscale=False,
             contours=dict(start=0, end=1, size=0.1)
         ))
         
@@ -382,20 +339,20 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
             x=x1_grid, y=x2_grid, z=z_mesh,
             type='contour', colorscale=[[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0)']],
             contours=dict(type='constraint', operation='=', value=0.5),
-            line=dict(color=primary, width=4), name='Decision Boundary'
+            line=dict(color='#00ffff', width=4), name='Decision Boundary'
         ))
         
-        colors = [secondary if y == 0 else primary for y in y_data]
+        colors = ['#ff0055' if y == 0 else '#00ffaa' for y in y_data]
         fig_main.add_trace(go.Scatter(
             x=x1_data, y=x2_data, mode='markers',
-            marker=dict(size=8, color=colors, line=dict(width=1, color=bg_color)),
+            marker=dict(size=8, color=colors, line=dict(width=1, color='white')),
             name='Data Points'
         ))
         
         fig_main.update_layout(
             xaxis_title='Feature X1', yaxis_title='Feature X2',
-            xaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-            yaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
+            xaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(gridcolor="rgba(255,255,255,0.05)"),
             margin=dict(l=0, r=0, b=0, t=0),
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=600, showlegend=False
         )
@@ -406,13 +363,13 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
         fig_loss = go.Figure()
         fig_loss.add_trace(go.Scatter(
             y=loss_hist, mode='lines',
-            line=dict(color=primary, width=3, shape='spline'),
-            fill='tozeroy', fillcolor=f"rgba(128, 128, 128, 0.1)"
+            line=dict(color='#00ffff', width=3, shape='spline'),
+            fill='tozeroy', fillcolor='rgba(0, 255, 255, 0.1)'
         ))
         fig_loss.update_layout(
-            title=dict(text="Convergence Curve", font=dict(color=text_color)),
-            xaxis=dict(title="Epoch", gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-            yaxis=dict(title="Loss", gridcolor=grid_color, type='log', tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
+            title=dict(text="Convergence Curve", font=dict(color="#fff")),
+            xaxis=dict(title="Epoch", gridcolor="rgba(255,255,255,0.05)"),
+            yaxis=dict(title="Loss", gridcolor="rgba(255,255,255,0.05)", type='log'),
             margin=dict(l=20, r=20, t=40, b=20),
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=250
         )
@@ -421,7 +378,7 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
     html_logs = "<br>".join(logs[:18])
     logs_placeholder.markdown(f"""
     <div class="glass-panel" style="margin-bottom:0; padding:15px; height: 330px;">
-        <h4 style="margin-top:0; color:{text_color}; font-family:monospace; border-bottom:1px solid {border_color}; padding-bottom:10px;">>_ SYSTEM_LOGS</h4>
+        <h4 style="margin-top:0; color:white; font-family:monospace; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">>_ SYSTEM_LOGS</h4>
         <div class="terminal-window">{html_logs}</div>
     </div>
     """, unsafe_allow_html=True)
@@ -430,38 +387,31 @@ def render_dashboard(w1, w2, b, epoch, loss_hist, logs, is_active=False):
         if task_type == "Regression":
             residuals = y_data - preds
             
-            fig_resid = px.scatter(x=preds, y=residuals, color_discrete_sequence=[secondary])
-            fig_resid.add_hline(y=0, line_dash="dash", line_color=primary)
+            fig_resid = px.scatter(x=preds, y=residuals, color_discrete_sequence=['#ff00ff'])
+            fig_resid.add_hline(y=0, line_dash="dash", line_color="#00ffff")
             fig_resid.update_layout(
-                title=dict(text="Residuals vs Predicted", font=dict(color=text_color)),
-                xaxis_title="Predicted Y", yaxis_title="Residual Error",
+                title="Residuals vs Predicted", xaxis_title="Predicted Y", yaxis_title="Residual Error",
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                yaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color))
+                xaxis=dict(gridcolor="rgba(255,255,255,0.05)"), yaxis=dict(gridcolor="rgba(255,255,255,0.05)")
             )
             resid_placeholder.plotly_chart(fig_resid, use_container_width=True)
             
-            fig_dist = px.histogram(residuals, nbins=30, color_discrete_sequence=[primary])
+            fig_dist = px.histogram(residuals, nbins=30, color_discrete_sequence=['#00ffff'])
             fig_dist.update_layout(
-                title=dict(text="Error Distribution", font=dict(color=text_color)),
-                xaxis_title="Error Value", yaxis_title="Frequency",
+                title="Error Distribution", xaxis_title="Error Value", yaxis_title="Frequency",
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                yaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                showlegend=False
+                xaxis=dict(gridcolor="rgba(255,255,255,0.05)"), yaxis=dict(gridcolor="rgba(255,255,255,0.05)"), showlegend=False
             )
             dist_placeholder.plotly_chart(fig_dist, use_container_width=True)
         else:
             fig_hist = go.Figure()
-            fig_hist.add_trace(go.Histogram(x=preds[y_data==0], name='Class 0', marker_color=secondary, opacity=0.7))
-            fig_hist.add_trace(go.Histogram(x=preds[y_data==1], name='Class 1', marker_color=primary, opacity=0.7))
+            fig_hist.add_trace(go.Histogram(x=preds[y_data==0], name='Class 0', marker_color='#ff0055', opacity=0.7))
+            fig_hist.add_trace(go.Histogram(x=preds[y_data==1], name='Class 1', marker_color='#00ffaa', opacity=0.7))
             fig_hist.update_layout(
-                barmode='overlay', title=dict(text="Prediction Probability Distribution", font=dict(color=text_color)),
+                barmode='overlay', title="Prediction Probability Distribution",
                 xaxis_title="Predicted Probability", yaxis_title="Count",
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                yaxis=dict(gridcolor=grid_color, tickfont=dict(color=text_color), titlefont=dict(color=text_color)),
-                legend=dict(font=dict(color=text_color))
+                xaxis=dict(gridcolor="rgba(255,255,255,0.05)"), yaxis=dict(gridcolor="rgba(255,255,255,0.05)")
             )
             resid_placeholder.plotly_chart(fig_hist, use_container_width=True)
 
@@ -499,7 +449,7 @@ if train_trigger:
         current_loss = calculate_loss(y_data, full_preds, task_type, st.session_state.w1, st.session_state.w2, l2_lambda)
         st.session_state.loss_history.append(current_loss)
         
-        log_entry = f"<span><span style='opacity:0.5;'>[{st.session_state.epoch_count:04d}]</span> LOSS: <span style='font-weight:bold;'>{current_loss:.4f}</span> | dW1: {dw1:.3f} | dW2: {dw2:.3f}</span>"
+        log_entry = f"<span style='color:#888;'>[{st.session_state.epoch_count:04d}]</span> LOSS: <span style='color:#0f0;'>{current_loss:.4f}</span> | dW1: {dw1:.3f} | dW2: {dw2:.3f}"
         st.session_state.log_history.insert(0, log_entry)
         
         render_dashboard(st.session_state.w1, st.session_state.w2, st.session_state.b, st.session_state.epoch_count, st.session_state.loss_history, st.session_state.log_history, is_active=True)
@@ -510,7 +460,7 @@ if train_trigger:
             
     st.session_state.is_training = False
     progress_container.empty()
-    st.toast(f"Training Complete! Final Loss: {current_loss:.4f}")
+    st.toast(f"Training Complete! Final Loss: {current_loss:.4f}", icon="🔥")
 
 with st.sidebar:
     st.markdown("<hr>", unsafe_allow_html=True)
